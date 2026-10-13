@@ -307,3 +307,42 @@ CREATE TABLE IF NOT EXISTS reviews (
     ON UPDATE CASCADE
     ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Idempotent starter catalog. Existing categories, products, and images are preserved.
+INSERT IGNORE INTO categories (name, slug, description, image) VALUES
+  ('Clothing', 'clothing', 'Easy layers and everyday pieces.', 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=85'),
+  ('Accessories', 'accessories', 'The useful finishing touches.', 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=900&q=85'),
+  ('Home', 'home', 'A softer space, one good detail at a time.', 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=900&q=85');
+
+INSERT IGNORE INTO products (category_id, name, slug, description, price, discount_price, stock, brand, rating, review_count)
+SELECT id, 'Cloudstep Everyday Sneaker', 'cloudstep-everyday-sneaker', 'A light, cushioned sneaker made for long days and easy plans.', 84.00, 74.00, 24, 'Goodform Studio', 4.90, 128 FROM categories WHERE slug = 'clothing';
+INSERT IGNORE INTO products (category_id, name, slug, description, price, discount_price, stock, brand, rating, review_count)
+SELECT id, 'Sunday Cotton Shirt', 'sunday-cotton-shirt', 'Relaxed cotton poplin with a little room to move.', 68.00, NULL, 18, 'Goodform Studio', 4.80, 64 FROM categories WHERE slug = 'clothing';
+INSERT IGNORE INTO products (category_id, name, slug, description, price, discount_price, stock, brand, rating, review_count)
+SELECT id, 'Softline Weekend Knit', 'softline-weekend-knit', 'A soft, breathable knit for cool mornings and slower evenings.', 96.00, 86.00, 12, 'Goodform Studio', 4.70, 43 FROM categories WHERE slug = 'clothing';
+INSERT IGNORE INTO products (category_id, name, slug, description, price, discount_price, stock, brand, rating, review_count)
+SELECT id, 'Studio Wireless Headphones', 'studio-wireless-headphones', 'Clear, balanced sound with comfortable all-day cushioning.', 129.00, NULL, 15, 'Goodform Audio', 4.80, 96 FROM categories WHERE slug = 'accessories';
+INSERT IGNORE INTO products (category_id, name, slug, description, price, discount_price, stock, brand, rating, review_count)
+SELECT id, 'Everywhere Leather Tote', 'everywhere-leather-tote', 'A considered carryall with a roomy interior and simple lines.', 112.00, NULL, 11, 'Goodform Studio', 4.90, 74 FROM categories WHERE slug = 'accessories';
+INSERT IGNORE INTO products (category_id, name, slug, description, price, discount_price, stock, brand, rating, review_count)
+SELECT id, 'Daylight Ceramic Mug', 'daylight-ceramic-mug', 'A hand-finished stoneware mug with an easy, balanced handle.', 32.00, 28.00, 30, 'Goodform Home', 4.80, 81 FROM categories WHERE slug = 'home';
+INSERT IGNORE INTO products (category_id, name, slug, description, price, discount_price, stock, brand, rating, review_count)
+SELECT id, 'Sunday Morning Ceramic Set', 'sunday-morning-ceramic-set', 'A small-batch set for slow breakfasts and good company.', 58.00, NULL, 9, 'Goodform Home', 4.70, 52 FROM categories WHERE slug = 'home';
+INSERT IGNORE INTO products (category_id, name, slug, description, price, discount_price, stock, brand, rating, review_count)
+SELECT id, 'Quiet Hour Linen Throw', 'quiet-hour-linen-throw', 'A softly textured layer woven for the sofa, the bed, and everything in between.', 89.00, 79.00, 14, 'Goodform Home', 4.90, 37 FROM categories WHERE slug = 'home';
+
+INSERT INTO product_images (product_id, image_url, sort_order)
+SELECT p.id, seed.image_url, 0 FROM (
+  SELECT 'cloudstep-everyday-sneaker' AS slug, 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=85' AS image_url UNION ALL
+  SELECT 'sunday-cotton-shirt', 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1000&q=85' UNION ALL
+  SELECT 'softline-weekend-knit', 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=1000&q=85' UNION ALL
+  SELECT 'studio-wireless-headphones', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1000&q=85' UNION ALL
+  SELECT 'everywhere-leather-tote', 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=1000&q=85' UNION ALL
+  SELECT 'daylight-ceramic-mug', 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=1000&q=85' UNION ALL
+  SELECT 'sunday-morning-ceramic-set', 'https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?auto=format&fit=crop&w=1000&q=85' UNION ALL
+  SELECT 'quiet-hour-linen-throw', 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=85'
+) AS seed
+JOIN products p ON p.slug = seed.slug
+WHERE NOT EXISTS (
+  SELECT 1 FROM product_images existing WHERE existing.product_id = p.id AND existing.image_url = seed.image_url
+);

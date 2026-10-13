@@ -6,7 +6,7 @@
 
 :root {
   font-family: 'DM Sans', sans-serif;
-  color: #202a2d;
+  color: #2d2829;
   background: #ffffff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,11 +14,11 @@
   -moz-osx-font-smoothing: grayscale;
   font-optical-sizing: auto;
   font-weight: 400;
-  --ink: #202a2d;
-  --muted: #707a7c;
-  --blue: #315f70;
-  --pale-blue: #e9f1f1;
-  --line: #e5e9e7;
+  --ink: #2d2829;
+  --muted: #787071;
+  --blue: #a75f70;
+  --pale-blue: #f7eaed;
+  --line: #ebe3e4;
   --serif: 'DM Serif Display', Georgia, serif;
 }
 
@@ -26,6 +26,6 @@ html { min-width: 320px; scroll-behavior: smooth; scroll-padding-top: 8rem; }
 body { min-width: 320px; margin: 0; line-height: 1.5; }
 button, input { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid #39788b; outline-offset: 3px; }
-::selection { color: #fff; background: #315f70; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #a75f70; outline-offset: 3px; }
+::selection { color: #fff; background: #a75f70; }
 #root { min-height: 100svh; }

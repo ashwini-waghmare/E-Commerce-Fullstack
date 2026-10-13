@@ -1,11 +1,11 @@
-# E-commerce Project
+# Goodform E-commerce
 
-Full-stack e-commerce website. Product UI, authentication, and payments will be added later.
+A responsive storefront backed by an Express REST API and MySQL. It includes a seeded catalog, product search and filters, a persistent browser cart and wishlist, account registration/login, and authenticated order history.
 
 - **Frontend:** React + Vite (http://localhost:5173)
 - **Backend:** Node.js + Express REST API (http://localhost:5000)
 - **Database:** MySQL
-- **Auth:** JWT (added later)
+- **Auth:** bcrypt password hashing and HttpOnly JWT cookies
 - **Styling:** Plain CSS, fully responsive
 
 ## Project structure
@@ -84,7 +84,7 @@ mysql -u root < backend/database/schema.sql
 
 You can also open `backend/database/schema.sql` in MySQL Workbench and execute it.
 
-This creates the database and all tables. It does not insert users or products.
+This creates the database and tables, then inserts idempotent sample categories, products, and product images. Existing rows are not replaced.
 
 ## 4. Set database environment variables
 
@@ -138,3 +138,22 @@ npm run dev
 ```
 
 App runs at http://localhost:5173
+
+## Store features and API
+
+- Browse and search the catalog, filter by category and price, and sort by popularity or price.
+- View product details, manage a local persistent cart and wishlist, and submit a shipping address at checkout.
+- Register and sign in; orders and account history require authentication.
+- `GET /api/categories`
+- `GET /api/products?page=1&limit=12&search=&category=&minPrice=&maxPrice=&sort=popular`
+- `GET /api/products/:idOrSlug`
+- `POST /api/auth/register` with `{ "name", "email", "password" }`; `POST /api/auth/login` with `{ "email", "password" }`
+- `POST /api/auth/logout`; `GET /api/auth/me`
+- `POST /api/orders` (authenticated) with `{ "shippingAddress", "items": [{ "productId", "quantity" }] }`
+- `GET /api/orders` and `GET /api/orders/:id` (authenticated)
+
+JWTs are sent in an HttpOnly, SameSite cookie and marked Secure in production. Set a unique `JWT_SECRET` in `backend/.env`; generate one with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. Never commit `.env` files or place real credentials in the example files.
+
+No payment gateway is configured. Checkout records an order with `payment_status = pending`; it does not charge a customer, and the confirmation screen says so.
+
+If product requests fail, start MySQL, load `backend/database/schema.sql`, check `backend/.env`, and verify `http://localhost:5000/api/health/db`. Build the frontend with `cd frontend; npm run build`; check backend syntax with `cd backend; node --check src/server.js`.
