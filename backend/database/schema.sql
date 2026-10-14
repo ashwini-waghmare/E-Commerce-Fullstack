@@ -2,11 +2,7 @@
 -- Database name must match DB_NAME in backend/.env
 -- No seed data. Passwords must be stored as hashes only, never plaintext.
 
-CREATE DATABASE IF NOT EXISTS ecommerce
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE ecommerce;
+USE railway;
 
 CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
